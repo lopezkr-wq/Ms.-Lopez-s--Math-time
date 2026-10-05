@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ms. Lopez Math Time</title><style>
+body{font-family:Arial;margin:0;background:#fff8dc;text-align:center;color:#222}header{background:#ffe89a;padding:18px;border-bottom:5px solid #e6ad16}h1{font-size:clamp(34px,6vw,64px);margin:6px}.card{background:white;border:4px solid #222;border-radius:24px;padding:20px;margin:18px auto;max-width:1000px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px}.screen{display:none}.active{display:block}button{font:inherit;font-weight:bold;border:3px solid #222;border-radius:18px;background:#fff3b8;padding:15px;min-height:70px;cursor:pointer}.num{font-size:40px}.big{font-size:140px;font-weight:bold}.objects{font-size:55px;line-height:1.5}.choices{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}.choices button{font-size:42px;min-width:150px;background:#eaf6ff}.feedback{font-size:30px;font-weight:bold;min-height:40px}.trace{position:relative;display:inline-block}.guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:230px;font-weight:bold;color:#ddd;pointer-events:none}canvas{width:min(90vw,700px);height:300px;border:4px dashed #777;border-radius:18px;touch-action:none}.nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px}.sub{font-size:26px}</style></head><body>
+<header><div style="font-size:45px">🐝 🔢 🧮</div><h1>Ms. Lopez's Math Time!</h1><div class="sub">Look • Count • Touch • Trace • Learn</div></header><main>
+<section id="home" class="screen active"><div class="card"><h2>Choose a Number</h2><div id="grid" class="grid"></div></div><div class="card"><h2>Choose a Math Activity</h2><div class="choices"><button onclick="startOp('add',5)">➕ Addition Within 5</button><button onclick="startOp('add',10)">➕ Addition Within 10</button><button onclick="startOp('sub',5)">➖ Subtraction Within 5</button><button onclick="startOp('sub',10)">➖ Subtraction Within 10</button><button onclick="startSkill('shapes')">🔷 Shapes</button><button onclick="startSkill('colors')">🌈 Colors</button><button onclick="startSkill('patterns')">🧩 Patterns</button><button onclick="startSkill('compare')">⚖️ More or Less</button><button onclick="startSkill('order')">🔢 Number Order</button><button onclick="startSkill('missing')">❓ Missing Number</button><button onclick="startSkill('word')">📖 Word Problems</button></div><p class="sub">Choose the activity that matches the student's current skill.</p></div><div class="card"><h2>Our Math Routine</h2><p class="sub">1️⃣ See it → 2️⃣ Count it → 3️⃣ Trace it → 4️⃣ Find it → 5️⃣ Match it</p></div></section>
+<section id="lesson" class="screen"><div class="card"><div class="sub">Today's Number</div><div id="big" class="big"></div><button onclick="say('This is number '+cur)">🔊 Hear the Number</button></div>
+<div class="card"><h2>👀 Count With Me</h2><div id="objs" class="objects"></div><button onclick="count()">🔊 Count Aloud</button></div>
+<div class="card"><h2>☝️ Trace the Number</h2><p class="sub">Use your finger on the board.</p><div class="trace"><div id="guide" class="guide"></div><canvas id="pad" width="700" height="300"></canvas></div><br><button onclick="clearPad()">🧽 Clear & Try Again</button></div>
+<div class="card"><h2>👉 Touch the Number</h2><div id="find" class="choices"></div><div id="fback" class="feedback"></div></div>
+<div class="card"><h2>🍎 Which Group Has <span id="target"></span>?</h2><div id="qty" class="choices"></div><div id="qback" class="feedback"></div></div>
+<div class="card"><h2>⭐ Great Job!</h2><p class="sub">You practiced looking, counting, tracing, and matching!</p></div>
+<div class="nav"><button onclick="openN(cur==1?20:cur-1)">⬅️ Previous</button><button onclick="show('home')">🏠 Numbers</button><button onclick="openN(cur==20?1:cur+1)">Next ➡️</button></div></section><section id="skill" class="screen"><div class="card"><h2 id="skillTitle">Math Skill</h2><div id="skillPrompt" class="sub"></div><div id="skillVisual" class="objects"></div><div id="skillChoices" class="choices"></div><div id="skillFeedback" class="feedback"></div></div><div class="nav"><button onclick="newSkill()">🔄 New Problem</button><button onclick="show('home')">🏠 Math Home</button></div></section><section id="operations" class="screen"><div class="card"><h2 id="opTitle">➕ Addition</h2><div id="visualProblem" class="objects"></div><div id="equation" class="big" style="font-size:80px"></div><button onclick="sayProblem()">🔊 Hear the Problem</button></div><div class="card"><h2>👉 Touch the Answer</h2><div id="opChoices" class="choices"></div><div id="opFeedback" class="feedback"></div></div><div class="nav"><button onclick="newProblem()">🔄 New Problem</button><button onclick="show('home')">🏠 Math Home</button></div></section></main><script>
+let cur=1;const g=document.getElementById('grid');
+for(let n=1;n<=20;n++){
+ let b=document.createElement('button');
+ b.className='num';
+ b.type='button';
+ b.textContent=n;
+ b.addEventListener('click',()=>openN(n));
+ g.appendChild(b);
+}
+function show(id){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.getElementById(id).classList.add('active');scrollTo(0,0)}
+function say(t){if(speechSynthesis){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=.8;speechSynthesis.speak(u)}}function count(){say(Array.from({length:cur},(_,i)=>i+1).join(', '))}
+function choices(n){let a=[n];for(let d of [1,-1,2,-2,3]){let v=n+d;if(v>=1&&v<=20&&!a.includes(v))a.push(v);if(a.length==3)break}return a.sort(()=>Math.random()-.5)}
+function answer(ok,id){document.getElementById(id).textContent=ok?'⭐ Great job!':'Try again.';say(ok?'Great job!':'Try again')}
+function openN(n){
+cur=n;
+document.getElementById('big').textContent=n;
+document.getElementById('guide').textContent=n;
+document.getElementById('target').textContent=n;
+let icons=['⭐','🍎','🐝','🔵','🐸'];
+document.getElementById('objs').textContent=Array(n).fill(icons[(n-1)%5]).join(' ');
+document.getElementById('find').innerHTML='';
+document.getElementById('qty').innerHTML='';
+document.getElementById('fback').textContent='';
+document.getElementById('qback').textContent='';
+choices(n).forEach(v=>{let b=document.createElement('button');b.textContent=v;b.onclick=()=>answer(v==n,'fback');document.getElementById('find').appendChild(b)});
+choices(n).forEach(v=>{let b=document.createElement('button');b.style.fontSize='22px';b.textContent=Array(v).fill('●').join(' ');b.onclick=()=>answer(v==n,'qback');document.getElementById('qty').appendChild(b)});clearPad();show('lesson');say('Number '+n)}
+let skillMode='shapes',skillAns='';
+const shapeSet=[['●','circle'],['■','square'],['▲','triangle'],['♥','heart'],['★','star']];
+const colorSet=[['🔴','red'],['🔵','blue'],['🟢','green'],['🟡','yellow'],['🟣','purple'],['🟠','orange']];
+function startSkill(m){skillMode=m;newSkill();show('skill')}
+function skillButtons(vals){skillChoices.innerHTML='';vals.forEach(v=>{let b=document.createElement('button');b.innerHTML=v[0];b.onclick=()=>skillAnswer(v[1]===skillAns);skillChoices.appendChild(b)})}
+function skillAnswer(ok){skillFeedback.textContent=ok?'⭐ Great job!':'Try again.';say(ok?'Great job!':'Try again')}
+function newSkill(){skillFeedback.textContent='';skillVisual.innerHTML='';skillChoices.innerHTML='';
+ if(skillMode==='shapes'){skillTitle.textContent='🔷 Shapes';let t=shapeSet[Math.floor(Math.random()*shapeSet.length)];skillAns=t[1];skillPrompt.textContent='Touch the '+t[1]+'.';skillVisual.textContent=t[0];skillButtons(shapeSet.sort(()=>Math.random()-.5).slice(0,4).map(x=>[x[0],x[1]]))}
+ else if(skillMode==='colors'){skillTitle.textContent='🌈 Colors';let t=colorSet[Math.floor(Math.random()*colorSet.length)];skillAns=t[1];skillPrompt.textContent='Touch '+t[1]+'.';skillButtons(colorSet.sort(()=>Math.random()-.5).slice(0,4).map(x=>[x[0],x[1]]))}
+ else if(skillMode==='patterns'){skillTitle.textContent='🧩 Patterns';let a=Math.random()<.5?'🔵':'⭐',b=a==='🔵'?'🟡':'❤️';skillAns=a;skillPrompt.textContent='What comes next?';skillVisual.textContent=a+' '+b+' '+a+' '+b+' '+a+' '+b+' ___';skillButtons([[a,a],[b,b],['🟢','🟢']])}
+ else if(skillMode==='compare'){skillTitle.textContent='⚖️ More or Less';let a=1+Math.floor(Math.random()*8),b=1+Math.floor(Math.random()*8);if(a===b)b++;skillAns=a>b?'left':'right';skillPrompt.textContent='Which group has MORE?';skillVisual.innerHTML='🍎 '.repeat(a)+' &nbsp;&nbsp; OR &nbsp;&nbsp; '+'🍎 '.repeat(b);skillButtons([['⬅️ LEFT','left'],['RIGHT ➡️','right']])}
+ else if(skillMode==='order'){skillTitle.textContent='🔢 Number Order';let n=1+Math.floor(Math.random()*17);skillAns=String(n+1);skillPrompt.textContent='What number comes next?';skillVisual.textContent=n+'  →  ___';skillButtons([[String(n+1),String(n+1)],[String(n+2),String(n+2)],[String(Math.max(1,n-1)),String(Math.max(1,n-1))]])}
+ else if(skillMode==='missing'){skillTitle.textContent='❓ Missing Number';let n=2+Math.floor(Math.random()*16);skillAns=String(n);skillPrompt.textContent='What number is missing?';skillVisual.textContent=(n-1)+' , ___ , '+(n+1);skillButtons([[String(n),String(n)],[String(n+1),String(n+1)],[String(Math.max(1,n-2)),String(Math.max(1,n-2))]])}
+ else {skillTitle.textContent='📖 Word Problems';let a=1+Math.floor(Math.random()*5),b=1+Math.floor(Math.random()*4);skillAns=String(a+b);skillPrompt.textContent='Ms. Lopez has '+a+' apples. She gets '+b+' more. How many apples now?';skillVisual.textContent='🍎 '.repeat(a)+' + '+'🍎 '.repeat(b);skillButtons([[String(a+b),String(a+b)],[String(a+b+1),String(a+b+1)],[String(Math.max(0,a+b-1)),String(Math.max(0,a+b-1))]])}
+}
+let opMode='add',opMax=5,oa=1,ob=1,oans=2;
+function startOp(m,x){opMode=m;opMax=x;newProblem();show('operations')}
+function newProblem(){opFeedback.textContent='';if(opMode==='add'){oa=1+Math.floor(Math.random()*opMax);ob=Math.floor(Math.random()*(opMax-oa+1));oans=oa+ob;opTitle.textContent='➕ Addition';visualProblem.innerHTML='🍎 '.repeat(oa)+' <b>+</b> '+'🍎 '.repeat(ob);equation.textContent=oa+' + '+ob+' = ?'}else{oa=1+Math.floor(Math.random()*opMax);ob=Math.floor(Math.random()*(oa+1));oans=oa-ob;opTitle.textContent='➖ Subtraction';visualProblem.innerHTML='● '.repeat(oans)+'<span style="opacity:.25;text-decoration:line-through">'+'● '.repeat(ob)+'</span>';equation.textContent=oa+' − '+ob+' = ?'}let a=[oans];for(let d of [1,-1,2,-2,3]){let v=oans+d;if(v>=0&&v<=20&&!a.includes(v))a.push(v);if(a.length==3)break}a.sort(()=>Math.random()-.5);opChoices.innerHTML='';a.forEach(v=>{let b=document.createElement('button');b.textContent=v;b.onclick=()=>answerOp(v==oans);opChoices.appendChild(b)})}
+function answerOp(ok){opFeedback.textContent=ok?'⭐ Great job!':'Try again.';say(ok?'Great job!':'Try again')}
+function sayProblem(){say(opMode==='add'?oa+' plus '+ob+' equals what?':oa+' minus '+ob+' equals what?')}
+const c=document.getElementById('pad'),x=c.getContext('2d');x.lineWidth=14;x.lineCap='round';let draw=false;function p(e){let r=c.getBoundingClientRect(),q=e.touches?e.touches[0]:e;return[(q.clientX-r.left)*c.width/r.width,(q.clientY-r.top)*c.height/r.height]}function st(e){draw=true;let q=p(e);x.beginPath();x.moveTo(...q);e.preventDefault()}function mv(e){if(!draw)return;x.lineTo(...p(e));x.stroke();e.preventDefault()}function en(){draw=false}['mousedown','touchstart'].forEach(e=>c.addEventListener(e,st,{passive:false}));['mousemove','touchmove'].forEach(e=>c.addEventListener(e,mv,{passive:false}));['mouseup','mouseleave','touchend'].forEach(e=>c.addEventListener(e,en));function clearPad(){x.clearRect(0,0,c.width,c.height)}
+</script></body></html>
